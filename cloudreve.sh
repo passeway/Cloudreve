@@ -68,10 +68,10 @@ install_cloudreve() {
 
     # 创建安装目录
     if [ ! -d "$INSTALL_DIR" ]; then
-        echo "创建目录：$INSTALL_DIR"
+        echo "创建目录$INSTALL_DIR"
         mkdir -p "$INSTALL_DIR" || { echo "无法创建目录 $INSTALL_DIR"; press_enter; return; }
     else
-        echo "Cloudreve 目录已存在：$INSTALL_DIR"
+        echo "Cloudreve 目录已存在$INSTALL_DIR"
     fi
 
     # 检查依赖
