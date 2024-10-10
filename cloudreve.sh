@@ -6,7 +6,6 @@ if [ "$EUID" -ne 0 ]; then
   exit
 fi
 
-
 # 定义 Cloudreve 安装目录
 INSTALL_DIR="/etc/Cloudreve"
 
@@ -45,7 +44,8 @@ fi
 sudo chmod +x cloudreve
 
 # 手动运行一次 Cloudreve 以获取初始管理员信息
-sudo ./cloudreve | tee cloudreve.log
+echo "正在运行 Cloudreve 获取初始管理员信息..."
+sudo nohup ./cloudreve > cloudreve.log 2>&1 &
 
 # 创建 systemd 服务文件
 SERVICE_FILE="/usr/lib/systemd/system/cloudreve.service"
@@ -79,5 +79,7 @@ sudo systemctl daemon-reload
 sudo systemctl start cloudreve
 # 设置 Cloudreve 开机自启动
 sudo systemctl enable cloudreve
-#查看 Cloudreve 管理员信息
+
+# 查看 Cloudreve 管理员信息
+echo "请查看 Cloudreve 管理员信息:"
 cat /etc/Cloudreve/cloudreve.log
