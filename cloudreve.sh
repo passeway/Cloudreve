@@ -35,12 +35,14 @@ get_latest_version() {
 
 # 安装 Cloudreve
 install_cloudreve() {
-    echo "开始安装 Cloudreve..."
+    echo "============================="
+    echo "    开始安装 Cloudreve..."
+    echo "============================="
 
     # 创建安装目录
     if [ ! -d "$INSTALL_DIR" ]; then
         echo "创建 Cloudreve 目录：$INSTALL_DIR"
-        mkdir -p "$INSTALL_DIR" || { echo "无法创建目录 $INSTALL_DIR"; exit 1; }
+        mkdir -p "$INSTALL_DIR" || { echo "无法创建目录 $INSTALL_DIR"; press_enter; return; }
     else
         echo "Cloudreve 目录已存在：$INSTALL_DIR"
     fi
@@ -58,7 +60,8 @@ install_cloudreve() {
     # 切换到安装目录
     if ! cd "$INSTALL_DIR"; then
         echo "无法切换到安装目录：$INSTALL_DIR"
-        exit 1
+        press_enter
+        return
     fi
 
     # 下载最新版本
@@ -66,14 +69,16 @@ install_cloudreve() {
     echo "正在下载 $TAR_FILE ..."
     if ! wget -O "$TAR_FILE" "$DOWNLOAD_URL"; then
         echo "下载 $DOWNLOAD_URL 失败，请检查网络连接或下载链接。"
-        exit 1
+        press_enter
+        return
     fi
 
     # 解压下载的文件
     echo "正在解压 $TAR_FILE ..."
     if ! tar -xzvf "$TAR_FILE"; then
         echo "解压 $TAR_FILE 失败，请手动检查文件。"
-        exit 1
+        press_enter
+        return
     fi
 
     # 赋予可执行权限
@@ -87,7 +92,8 @@ install_cloudreve() {
     # 检查 Cloudreve 是否已启动
     if ! pgrep -f cloudreve > /dev/null; then
         echo "Cloudreve 启动失败，请检查日志文件。"
-        exit 1
+        press_enter
+        return
     fi
 
     # 创建 systemd 服务文件
@@ -119,31 +125,43 @@ EOF
     systemctl start cloudreve
     systemctl enable cloudreve
 
-    echo "Cloudreve 安装并启动成功。"
+    echo "============================="
+    echo "  Cloudreve 安装并启动成功。"
+    echo "============================="
     echo "请查看 Cloudreve 管理员信息："
     cat "$LOG_FILE"
+    press_enter
 }
 
 # 卸载 Cloudreve
 uninstall_cloudreve() {
-    echo "开始卸载 Cloudreve..."
+    echo "============================="
+    echo "    开始卸载 Cloudreve..."
+    echo "============================="
 
     # 停止服务
     if systemctl is-active --quiet cloudreve; then
         echo "停止 Cloudreve 服务..."
         systemctl stop cloudreve
+    else
+        echo "Cloudreve 服务未运行，跳过停止步骤。"
     fi
 
     # 禁用服务
     if systemctl is-enabled --quiet cloudreve; then
         echo "禁用 Cloudreve 服务..."
         systemctl disable cloudreve
+    else
+        echo "Cloudreve 服务未启用，跳过禁用步骤。"
     fi
 
     # 移除服务文件
     if [ -f "$SERVICE_FILE" ]; then
         echo "移除 systemd 服务文件..."
         rm -f "$SERVICE_FILE"
+        echo "已移除 $SERVICE_FILE"
+    else
+        echo "$SERVICE_FILE 不存在，跳过。"
     fi
 
     # 重新加载 systemd 守护进程
@@ -153,13 +171,23 @@ uninstall_cloudreve() {
     if [ -d "$INSTALL_DIR" ]; then
         echo "删除安装目录 $INSTALL_DIR ..."
         rm -rf "$INSTALL_DIR"
+        echo "已删除 $INSTALL_DIR"
+    else
+        echo "$INSTALL_DIR 不存在，跳过。"
     fi
 
-    echo "Cloudreve 已成功卸载。"
+    echo "============================="
+    echo "  Cloudreve 已成功卸载。"
+    echo "============================="
+    press_enter
 }
 
 # 重启 Cloudreve
 restart_cloudreve() {
+    echo "============================="
+    echo "    重启 Cloudreve 服务..."
+    echo "============================="
+
     if systemctl is-active --quiet cloudreve; then
         echo "重启 Cloudreve 服务..."
         systemctl restart cloudreve
@@ -173,26 +201,43 @@ restart_cloudreve() {
             echo "无法启动 Cloudreve 服务。"
         fi
     fi
+
+    press_enter
 }
 
 # 查看 Cloudreve 状态
 status_cloudreve() {
-    echo "Cloudreve 服务状态："
+    echo "============================="
+    echo "     Cloudreve 服务状态      "
+    echo "============================="
     systemctl status cloudreve
+    press_enter
 }
 
 # 查看 Cloudreve 密码
 view_password() {
+    echo "============================="
+    echo "     查看 Cloudreve 密码      "
+    echo "============================="
+
     if [ -f "$LOG_FILE" ]; then
         echo "Cloudreve 管理员信息："
-        grep -i 'admin' "$LOG_FILE"
+        grep -i 'admin' "$LOG_FILE" || echo "未找到管理员信息。"
     else
         echo "日志文件不存在，无法查看密码。"
     fi
+    press_enter
+}
+
+# 提示用户按回车键继续
+press_enter() {
+    echo ""
+    read -rp "按回车键返回主菜单..." key
 }
 
 # 显示菜单
 show_menu() {
+    clear
     echo "============================="
     echo "     Cloudreve 管理脚本      "
     echo "============================="
@@ -211,7 +256,7 @@ main() {
 
     while true; do
         show_menu
-        read -p "请输入选项 [1-6]：" choice
+        read -rp "请输入选项 [1-6]：" choice
         case $choice in
             1)
                 install_cloudreve
@@ -229,14 +274,16 @@ main() {
                 view_password
                 ;;
             6)
-                echo "退出。"
+                echo "============================="
+                echo "         退出脚本。          "
+                echo "============================="
                 exit 0
                 ;;
             *)
                 echo "无效选项，请输入 1-6 之间的数字。"
+                press_enter
                 ;;
         esac
-        echo ""
     done
 }
 
