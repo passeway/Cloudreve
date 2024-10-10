@@ -34,7 +34,7 @@ if ! wget $DOWNLOAD_URL; then
 fi
 
 # 下载完成后解压
-echo "下载完成，开始解压..."
+echo "正在解压"
 if ! tar -xzvf cloudreve_${LATEST_VERSION#v}_*.tar.gz; then
     echo "解压失败，请手动检查文件。"
     exit 1
@@ -44,7 +44,6 @@ fi
 sudo chmod +x cloudreve
 
 # 手动运行一次 Cloudreve 以获取初始管理员信息
-echo "正在运行 Cloudreve 获取初始管理员信息..."
 sudo nohup ./cloudreve > cloudreve.log 2>&1 &
 
 # 创建 systemd 服务文件
