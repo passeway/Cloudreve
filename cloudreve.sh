@@ -48,7 +48,7 @@ get_latest_version() {
         echo "无法获取 Cloudreve 最新版本号"
         exit 1
     fi
-    echo "最新 Cloudreve 版本：$LATEST_VERSION"
+    echo "最新版本Cloudreve：$LATEST_VERSION"
 }
 
 # 获取适用于当前架构的下载链接
