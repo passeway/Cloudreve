@@ -17,7 +17,7 @@ check_root() {
 check_dependencies() {
     for cmd in curl jq wget tar systemctl uname; do
         if ! command -v $cmd &> /dev/null; then
-            echo "需要安装 $cmd，请先安装它。"
+            echo "需要安装 $cmd，请先安装它"
             exit 1
         fi
     done
@@ -98,7 +98,7 @@ install_cloudreve() {
     TAR_FILE="cloudreve_${LATEST_VERSION#v}_linux_${ARCH}.tar.gz"
     echo "正在下载 $TAR_FILE ..."
     if ! wget -O "$TAR_FILE" "$DOWNLOAD_URL"; then
-        echo "下载 $DOWNLOAD_URL 失败，请检查网络连接或下载链接。"
+        echo "下载 $DOWNLOAD_URL 失败，请检查网络连接或下载链接"
         press_enter
         return
     fi
@@ -106,13 +106,12 @@ install_cloudreve() {
     # 解压下载的文件
     echo "正在解压 $TAR_FILE "
     if ! tar -xzvf "$TAR_FILE"; then
-        echo "解压 $TAR_FILE 失败，请手动检查文件。"
+        echo "解压 $TAR_FILE 失败，请手动检查文件"
         press_enter
         return
     fi
 
     # 删除下载的压缩包以节省空间
-    echo "正在删除下载的压缩包 $TAR_FILE ..."
     rm -f "$TAR_FILE"
 
     # 赋予可执行权限
@@ -168,27 +167,23 @@ uninstall_cloudreve() {
 
     # 停止服务
     if systemctl is-active --quiet cloudreve; then
-        echo "停止 Cloudreve 服务..."
         systemctl stop cloudreve
     else
-        echo "Cloudreve 服务未运行，跳过停止步骤。"
+        echo "Cloudreve 服务未运行，跳过停止步骤"
     fi
 
     # 禁用服务
     if systemctl is-enabled --quiet cloudreve; then
-        echo "禁用 Cloudreve 服务..."
         systemctl disable cloudreve
     else
-        echo "Cloudreve 服务未启用，跳过禁用步骤。"
+        echo "Cloudreve 服务未启用，跳过禁用步骤"
     fi
 
     # 移除服务文件
     if [ -f "$SERVICE_FILE" ]; then
-        echo "移除 systemd 服务文件..."
         rm -f "$SERVICE_FILE"
-        echo "已移除 $SERVICE_FILE"
     else
-        echo "$SERVICE_FILE 不存在，跳过。"
+        echo "$SERVICE_FILE 不存在，跳过"
     fi
 
     # 重新加载 systemd 守护进程
@@ -196,11 +191,9 @@ uninstall_cloudreve() {
 
     # 删除安装目录
     if [ -d "$INSTALL_DIR" ]; then
-        echo "删除安装目录 $INSTALL_DIR ..."
         rm -rf "$INSTALL_DIR"
-        echo "已删除 $INSTALL_DIR"
     else
-        echo "$INSTALL_DIR 不存在，跳过。"
+        echo "$INSTALL_DIR 不存在，跳过"
     fi
 
     echo "Cloudreve 已成功卸载"
@@ -211,7 +204,6 @@ uninstall_cloudreve() {
 restart_cloudreve() {
 
     if systemctl is-active --quiet cloudreve; then
-        echo "重启 Cloudreve 服务..."
         systemctl restart cloudreve
         echo "Cloudreve 已重启"
     else
