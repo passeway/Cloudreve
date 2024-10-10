@@ -245,7 +245,7 @@ show_menu() {
     echo "3. 重启 Cloudreve 服务"
     echo "4. 查看 Cloudreve 状态"
     echo "5. 查看 Cloudreve 密码"
-    echo "6. 退出"
+    echo "0. 退出"
     echo "============================="
 }
 
@@ -255,7 +255,7 @@ main() {
 
     while true; do
         show_menu
-        read -rp "请输入选项 [1-6]：" choice
+        read -rp "请输入选项编号：" choice
         case $choice in
             1)
                 install_cloudreve
@@ -272,14 +272,12 @@ main() {
             5)
                 view_password
                 ;;
-            6)
-                echo "============================="
-                echo "         退出脚本。          "
-                echo "============================="
+            0)
+                
                 exit 0
                 ;;
             *)
-                echo "无效选项，请输入 1-6 之间的数字。"
+                echo "无效选项，请输入 0-5 之间的数字。"
                 press_enter
                 ;;
         esac
