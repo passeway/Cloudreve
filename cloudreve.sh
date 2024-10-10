@@ -27,7 +27,6 @@ DOWNLOAD_URL="https://github.com/cloudreve/Cloudreve/releases/download/${LATEST_
 cd "$INSTALL_DIR"
 
 # 使用 wget 下载最新版本到指定目录
-echo "正在下载 Cloudreve $LATEST_VERSION 到 $INSTALL_DIR..."
 if ! wget $DOWNLOAD_URL; then
     echo "下载失败，请检查网络连接或下载链接。"
     exit 1
