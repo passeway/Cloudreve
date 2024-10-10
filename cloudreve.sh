@@ -40,15 +40,22 @@ sudo chmod +x cloudreve
 
 # 手动运行一次 Cloudreve 以获取初始管理员信息
 echo "首次运行 Cloudreve，提取初始管理员信息..."
-ADMIN_INFO=$(sudo ./cloudreve -t 2>&1 | grep -E "Username:|Password:")
+ADMIN_INFO=$(sudo ./cloudreve -t 2>&1 | tee output.log)
 
-if [[ -z "$ADMIN_INFO" ]]; then
+ADMIN_USERNAME=$(grep "Admin user name:" output.log | awk -F ': ' '{print $2}')
+ADMIN_PASSWORD=$(grep "Admin password:" output.log | awk -F ': ' '{print $2}')
+
+if [[ -z "$ADMIN_USERNAME" || -z "$ADMIN_PASSWORD" ]]; then
     echo "无法提取管理员信息，手动检查日志或手动运行 Cloudreve。"
     exit 1
 else
     echo "初始管理员信息如下："
-    echo "$ADMIN_INFO"
+    echo "用户名: $ADMIN_USERNAME"
+    echo "密码: $ADMIN_PASSWORD"
 fi
+
+# 删除临时日志文件
+rm output.log
 
 # 创建 systemd 服务文件
 SERVICE_FILE="/usr/lib/systemd/system/cloudreve.service"
@@ -69,8 +76,8 @@ Restart=on-abnormal
 RestartSec=5s
 KillMode=mixed
 
-StandardOutput=null
-StandardError=syslog
+StandardOutput=journal
+StandardError=journal
 
 [Install]
 WantedBy=multi-user.target
