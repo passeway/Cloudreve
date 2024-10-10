@@ -42,18 +42,13 @@ if ! tar -xzvf cloudreve_${LATEST_VERSION#v}_*.tar.gz; then
 fi
 
 # 赋予 cloudreve 可执行权限
-echo "赋予执行权限..."
 sudo chmod +x cloudreve
 
 # 手动运行一次 Cloudreve 以获取初始管理员信息
-echo "首次运行 Cloudreve，提取初始管理员信息..."
 sudo ./cloudreve | tee cloudreve.log
-
-cat /etc/Cloudreve/cloudreve.log
 
 # 创建 systemd 服务文件
 SERVICE_FILE="/usr/lib/systemd/system/cloudreve.service"
-echo "创建 Cloudreve systemd 服务文件：$SERVICE_FILE"
 
 sudo bash -c "cat > $SERVICE_FILE <<EOF
 [Unit]
@@ -78,14 +73,11 @@ WantedBy=multi-user.target
 EOF"
 
 # 重新加载 systemd 守护进程
-echo "重新加载 systemd 守护进程..."
 sudo systemctl daemon-reload
 
 # 启动并启用 Cloudreve 服务
-echo "启动 Cloudreve 服务..."
 sudo systemctl start cloudreve
-echo "设置 Cloudreve 开机自启动..."
+# 设置 Cloudreve 开机自启动
 sudo systemctl enable cloudreve
-
-# 检查 Cloudreve 服务状态
-sudo systemctl status cloudreve
+#查看 Cloudreve 管理员信息
+cat /etc/Cloudreve/cloudreve.log
