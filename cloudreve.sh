@@ -65,9 +65,7 @@ press_enter() {
 
 # 安装 Cloudreve
 install_cloudreve() {
-    echo "============================="
-    echo "    开始安装 Cloudreve..."
-    echo "============================="
+    echo "开始安装 Cloudreve"
 
     # 创建安装目录
     if [ ! -d "$INSTALL_DIR" ]; then
@@ -106,7 +104,7 @@ install_cloudreve() {
     fi
 
     # 解压下载的文件
-    echo "正在解压 $TAR_FILE ..."
+    echo "正在解压 $TAR_FILE "
     if ! tar -xzvf "$TAR_FILE"; then
         echo "解压 $TAR_FILE 失败，请手动检查文件。"
         press_enter
@@ -121,7 +119,6 @@ install_cloudreve() {
     chmod +x cloudreve
 
     # 运行 Cloudreve 以生成初始配置
-    echo "正在运行 Cloudreve 以生成初始配置..."
     nohup ./cloudreve > "$LOG_FILE" 2>&1 &
     sleep 5
 
@@ -133,7 +130,6 @@ install_cloudreve() {
     fi
 
     # 创建 systemd 服务文件
-    echo "创建 systemd 服务文件..."
     cat > "$SERVICE_FILE" <<EOF
 [Unit]
 Description=Cloudreve
@@ -161,19 +157,14 @@ EOF
     systemctl start cloudreve
     systemctl enable cloudreve
 
-    echo "============================="
-    echo "  Cloudreve 安装并启动成功。"
-    echo "============================="
-    echo "请查看 Cloudreve 管理员信息："
+    echo "Cloudreve 安装并启动"
+    echo "Cloudreve 管理员信息"
     cat "$LOG_FILE"
     press_enter
 }
 
 # 卸载 Cloudreve
 uninstall_cloudreve() {
-    echo "============================="
-    echo "    开始卸载 Cloudreve..."
-    echo "============================="
 
     # 停止服务
     if systemctl is-active --quiet cloudreve; then
@@ -212,29 +203,24 @@ uninstall_cloudreve() {
         echo "$INSTALL_DIR 不存在，跳过。"
     fi
 
-    echo "============================="
-    echo "  Cloudreve 已成功卸载。"
-    echo "============================="
+    echo "Cloudreve 已成功卸载"
     press_enter
 }
 
 # 重启 Cloudreve
 restart_cloudreve() {
-    echo "============================="
-    echo "    重启 Cloudreve 服务..."
-    echo "============================="
 
     if systemctl is-active --quiet cloudreve; then
         echo "重启 Cloudreve 服务..."
         systemctl restart cloudreve
-        echo "Cloudreve 已重启。"
+        echo "Cloudreve 已重启"
     else
-        echo "Cloudreve 服务未运行，尝试启动..."
+        echo "Cloudreve 服务未运行，尝试启动"
         systemctl start cloudreve
         if [ $? -eq 0 ]; then
-            echo "Cloudreve 已启动。"
+            echo "Cloudreve 已启动"
         else
-            echo "无法启动 Cloudreve 服务。"
+            echo "无法启动 Cloudreve 服务"
         fi
     fi
 
@@ -243,18 +229,12 @@ restart_cloudreve() {
 
 # 查看 Cloudreve 状态
 status_cloudreve() {
-    echo "============================="
-    echo "     Cloudreve 服务状态      "
-    echo "============================="
     systemctl status cloudreve
     press_enter
 }
 
 # 查看 Cloudreve 密码
 view_password() {
-    echo "============================="
-    echo "     查看 Cloudreve 密码      "
-    echo "============================="
 
     if [ -f "$LOG_FILE" ]; then
         echo "Cloudreve 管理员信息："
