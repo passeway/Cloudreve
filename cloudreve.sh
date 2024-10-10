@@ -15,7 +15,7 @@ check_root() {
 
 # 检查必要工具是否已安装
 check_dependencies() {
-    for cmd in curl jq wget tar systemctl; do
+    for cmd in curl jq wget tar systemctl uname; do
         if ! command -v $cmd &> /dev/null; then
             echo "需要安装 $cmd，请先安装它。"
             exit 1
@@ -23,14 +23,44 @@ check_dependencies() {
     done
 }
 
+# 检测系统架构并设置 ARCH 变量
+detect_architecture() {
+    MACHINE_ARCH=$(uname -m)
+    case "$MACHINE_ARCH" in
+        x86_64)
+            ARCH="amd64"
+            ;;
+        aarch64 | arm64)
+            ARCH="arm64"
+            ;;
+        *)
+            echo "当前系统架构 ($MACHINE_ARCH) 不受支持。"
+            exit 1
+            ;;
+    esac
+    echo "检测到的系统架构：$ARCH"
+}
+
 # 获取 Cloudreve 最新版本号
 get_latest_version() {
     LATEST_VERSION=$(curl -s https://api.github.com/repos/cloudreve/Cloudreve/releases/latest | jq -r '.tag_name')
-    if [ -z "$LATEST_VERSION" ]; then
+    if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" = "null" ]; then
         echo "无法获取 Cloudreve 最新版本号。"
         exit 1
     fi
     echo "最新 Cloudreve 版本：$LATEST_VERSION"
+}
+
+# 获取适用于当前架构的下载链接
+get_download_url() {
+    DOWNLOAD_URL="https://github.com/cloudreve/Cloudreve/releases/download/${LATEST_VERSION}/cloudreve_${LATEST_VERSION#v}_linux_${ARCH}.tar.gz"
+    echo "下载链接：$DOWNLOAD_URL"
+}
+
+# 提示用户按回车键继续
+press_enter() {
+    echo ""
+    read -rp "按回车键返回主菜单..." key
 }
 
 # 安装 Cloudreve
@@ -50,12 +80,14 @@ install_cloudreve() {
     # 检查依赖
     check_dependencies
 
+    # 检测架构
+    detect_architecture
+
     # 获取最新版本
     get_latest_version
 
     # 构建下载链接
-    DOWNLOAD_URL="https://github.com/cloudreve/Cloudreve/releases/download/${LATEST_VERSION}/cloudreve_${LATEST_VERSION#v}_linux_amd64.tar.gz"
-    echo "下载链接：$DOWNLOAD_URL"
+    get_download_url
 
     # 切换到安装目录
     if ! cd "$INSTALL_DIR"; then
@@ -65,7 +97,7 @@ install_cloudreve() {
     fi
 
     # 下载最新版本
-    TAR_FILE="cloudreve_${LATEST_VERSION#v}_linux_amd64.tar.gz"
+    TAR_FILE="cloudreve_${LATEST_VERSION#v}_linux_${ARCH}.tar.gz"
     echo "正在下载 $TAR_FILE ..."
     if ! wget -O "$TAR_FILE" "$DOWNLOAD_URL"; then
         echo "下载 $DOWNLOAD_URL 失败，请检查网络连接或下载链接。"
@@ -80,6 +112,10 @@ install_cloudreve() {
         press_enter
         return
     fi
+
+    # 删除下载的压缩包以节省空间
+    echo "正在删除下载的压缩包 $TAR_FILE ..."
+    rm -f "$TAR_FILE"
 
     # 赋予可执行权限
     chmod +x cloudreve
@@ -227,12 +263,6 @@ view_password() {
         echo "日志文件不存在，无法查看密码。"
     fi
     press_enter
-}
-
-# 提示用户按回车键继续
-press_enter() {
-    echo ""
-    read -rp "按回车键返回主菜单..." key
 }
 
 # 显示菜单
