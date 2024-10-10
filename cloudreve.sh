@@ -38,14 +38,14 @@ detect_architecture() {
             exit 1
             ;;
     esac
-    echo "检测到的系统架构：$ARCH"
+    echo "检测vps系统架构：$ARCH"
 }
 
 # 获取 Cloudreve 最新版本号
 get_latest_version() {
     LATEST_VERSION=$(curl -s https://api.github.com/repos/cloudreve/Cloudreve/releases/latest | jq -r '.tag_name')
     if [ -z "$LATEST_VERSION" ] || [ "$LATEST_VERSION" = "null" ]; then
-        echo "无法获取 Cloudreve 最新版本号。"
+        echo "无法获取 Cloudreve 最新版本号"
         exit 1
     fi
     echo "最新 Cloudreve 版本：$LATEST_VERSION"
@@ -54,7 +54,6 @@ get_latest_version() {
 # 获取适用于当前架构的下载链接
 get_download_url() {
     DOWNLOAD_URL="https://github.com/cloudreve/Cloudreve/releases/download/${LATEST_VERSION}/cloudreve_${LATEST_VERSION#v}_linux_${ARCH}.tar.gz"
-    echo "下载链接：$DOWNLOAD_URL"
 }
 
 # 提示用户按回车键继续
@@ -69,7 +68,7 @@ install_cloudreve() {
 
     # 创建安装目录
     if [ ! -d "$INSTALL_DIR" ]; then
-        echo "创建 Cloudreve 目录：$INSTALL_DIR"
+        echo "创建目录：$INSTALL_DIR"
         mkdir -p "$INSTALL_DIR" || { echo "无法创建目录 $INSTALL_DIR"; press_enter; return; }
     else
         echo "Cloudreve 目录已存在：$INSTALL_DIR"
@@ -96,7 +95,6 @@ install_cloudreve() {
 
     # 下载最新版本
     TAR_FILE="cloudreve_${LATEST_VERSION#v}_linux_${ARCH}.tar.gz"
-    echo "正在下载 $TAR_FILE ..."
     if ! wget -O "$TAR_FILE" "$DOWNLOAD_URL"; then
         echo "下载 $DOWNLOAD_URL 失败，请检查网络连接或下载链接"
         press_enter
@@ -104,7 +102,6 @@ install_cloudreve() {
     fi
 
     # 解压下载的文件
-    echo "正在解压 $TAR_FILE "
     if ! tar -xzvf "$TAR_FILE"; then
         echo "解压 $TAR_FILE 失败，请手动检查文件"
         press_enter
