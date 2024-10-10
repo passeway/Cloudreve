@@ -6,6 +6,7 @@ if [ "$EUID" -ne 0 ]; then
   exit
 fi
 
+
 # 定义 Cloudreve 安装目录
 INSTALL_DIR="/etc/Cloudreve"
 
@@ -28,11 +29,17 @@ cd "$INSTALL_DIR"
 
 # 使用 wget 下载最新版本到指定目录
 echo "正在下载 Cloudreve $LATEST_VERSION 到 $INSTALL_DIR..."
-wget $DOWNLOAD_URL
+if ! wget $DOWNLOAD_URL; then
+    echo "下载失败，请检查网络连接或下载链接。"
+    exit 1
+fi
 
 # 下载完成后解压
 echo "下载完成，开始解压..."
-tar -xzvf cloudreve_${LATEST_VERSION#v}_*.tar.gz
+if ! tar -xzvf cloudreve_${LATEST_VERSION#v}_*.tar.gz; then
+    echo "解压失败，请手动检查文件。"
+    exit 1
+fi
 
 # 赋予 cloudreve 可执行权限
 echo "赋予执行权限..."
@@ -40,22 +47,9 @@ sudo chmod +x cloudreve
 
 # 手动运行一次 Cloudreve 以获取初始管理员信息
 echo "首次运行 Cloudreve，提取初始管理员信息..."
-ADMIN_INFO=$(sudo ./cloudreve -t 2>&1 | tee output.log)
+sudo ./cloudreve | tee cloudreve.log
 
-ADMIN_USERNAME=$(grep "Admin user name:" output.log | awk -F ': ' '{print $2}')
-ADMIN_PASSWORD=$(grep "Admin password:" output.log | awk -F ': ' '{print $2}')
-
-if [[ -z "$ADMIN_USERNAME" || -z "$ADMIN_PASSWORD" ]]; then
-    echo "无法提取管理员信息，手动检查日志或手动运行 Cloudreve。"
-    exit 1
-else
-    echo "初始管理员信息如下："
-    echo "用户名: $ADMIN_USERNAME"
-    echo "密码: $ADMIN_PASSWORD"
-fi
-
-# 删除临时日志文件
-rm output.log
+cat /etc/Cloudreve/cloudreve.log
 
 # 创建 systemd 服务文件
 SERVICE_FILE="/usr/lib/systemd/system/cloudreve.service"
@@ -90,7 +84,6 @@ sudo systemctl daemon-reload
 # 启动并启用 Cloudreve 服务
 echo "启动 Cloudreve 服务..."
 sudo systemctl start cloudreve
-
 echo "设置 Cloudreve 开机自启动..."
 sudo systemctl enable cloudreve
 
