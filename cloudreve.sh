@@ -152,6 +152,7 @@ EOF
     # 启动并启用 Cloudreve 服务
     systemctl start cloudreve
     systemctl enable cloudreve
+    systemctl restart cloudreve
 
     echo "Cloudreve 安装并启动"
     echo "Cloudreve 管理员信息"
