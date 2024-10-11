@@ -13,14 +13,71 @@ check_root() {
     fi
 }
 
-# 检查必要工具是否已安装
-check_dependencies() {
+# 自动安装缺失的依赖工具
+install_dependencies() {
+    MISSING_DEPS=()
     for cmd in curl jq wget tar systemctl uname; do
         if ! command -v $cmd &> /dev/null; then
-            echo "需要安装 $cmd，请先安装它"
-            exit 1
+            MISSING_DEPS+=($cmd)
         fi
     done
+
+    if [ ${#MISSING_DEPS[@]} -ne 0 ]; then
+        echo "检测到缺少以下依赖工具： ${MISSING_DEPS[@]}"
+        echo "正在尝试自动安装缺失的工具..."
+
+        # 检测包管理器
+        if command -v apt &> /dev/null; then
+            PKG_MANAGER="apt"
+            UPDATE_CMD="apt update -y"
+            INSTALL_CMD="apt install -y"
+        elif command -v yum &> /dev/null; then
+            PKG_MANAGER="yum"
+            UPDATE_CMD="yum makecache -y"
+            INSTALL_CMD="yum install -y"
+        elif command -v dnf &> /dev/null; then
+            PKG_MANAGER="dnf"
+            UPDATE_CMD="dnf makecache -y"
+            INSTALL_CMD="dnf install -y"
+        elif command -v pacman &> /dev/null; then
+            PKG_MANAGER="pacman"
+            UPDATE_CMD="pacman -Sy"
+            INSTALL_CMD="pacman -S --noconfirm"
+        else
+            echo "未检测到支持的包管理器（apt, yum, dnf, pacman），请手动安装以下工具： ${MISSING_DEPS[@]}"
+            exit 1
+        fi
+
+        echo "使用包管理器：$PKG_MANAGER"
+
+        # 更新包列表
+        echo "更新包列表..."
+        if ! $UPDATE_CMD; then
+            echo "无法更新包列表，请检查网络连接或包管理器配置"
+            exit 1
+        fi
+
+        # 安装缺失的依赖
+        echo "安装缺失的工具..."
+        for pkg in "${MISSING_DEPS[@]}"; do
+            # 有些工具在包管理器中的名称可能不同
+            case "$pkg" in
+                systemctl|uname)
+                    echo "$pkg 是系统自带工具，无法通过包管理器安装。请手动安装并重试。"
+                    ;;
+                *)
+                    if ! $INSTALL_CMD "$pkg"; then
+                        echo "无法安装 $pkg，请手动安装并重试。"
+                        exit 1
+                    fi
+                    ;;
+            esac
+        done
+
+        echo "依赖工具安装完成。"
+    else
+        echo "所有必要的依赖工具均已安装。"
+    fi
 }
 
 # 检测系统架构并设置 ARCH 变量
@@ -38,7 +95,7 @@ detect_architecture() {
             exit 1
             ;;
     esac
-    echo "检测vps系统架构：$ARCH"
+    echo "检测到系统架构：$ARCH"
 }
 
 # 获取 Cloudreve 最新版本号
@@ -48,7 +105,7 @@ get_latest_version() {
         echo "无法获取 Cloudreve 最新版本号"
         exit 1
     fi
-    echo "最新版本Cloudreve：$LATEST_VERSION"
+    echo "最新版本 Cloudreve：$LATEST_VERSION"
 }
 
 # 获取适用于当前架构的下载链接
@@ -68,14 +125,14 @@ install_cloudreve() {
 
     # 创建安装目录
     if [ ! -d "$INSTALL_DIR" ]; then
-        echo "创建目录$INSTALL_DIR"
+        echo "创建目录 $INSTALL_DIR"
         mkdir -p "$INSTALL_DIR" || { echo "无法创建目录 $INSTALL_DIR"; press_enter; return; }
     else
-        echo "Cloudreve 目录已存在$INSTALL_DIR"
+        echo "Cloudreve 目录已存在：$INSTALL_DIR"
     fi
 
-    # 检查依赖
-    check_dependencies
+    # 安装依赖
+    install_dependencies
 
     # 检测架构
     detect_architecture
@@ -153,11 +210,11 @@ EOF
     systemctl start cloudreve
     systemctl enable cloudreve
     systemctl restart cloudreve
-    
+
     # 获取本机IP地址
     HOST_IP=$(curl -s http://checkip.amazonaws.com)
 
-    echo "Cloudreve 安装并启动 http://${HOST_IP}:5212"
+    echo "Cloudreve 安装并启动完成。访问：http://${HOST_IP}:5212"
     cat "$LOG_FILE"
     press_enter
 }
@@ -276,7 +333,6 @@ main() {
                 view_password
                 ;;
             0)
-                
                 exit 0
                 ;;
             *)
