@@ -157,8 +157,7 @@ EOF
     # 获取本机IP地址
     HOST_IP=$(curl -s http://checkip.amazonaws.com)
 
-    echo "Cloudreve 安装并启动"
-    echo "http://${HOST_IP}:5212"
+    echo "Cloudreve 安装并启动 http://${HOST_IP}:5212"
     cat "$LOG_FILE"
     press_enter
 }
