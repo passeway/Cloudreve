@@ -153,9 +153,12 @@ EOF
     systemctl start cloudreve
     systemctl enable cloudreve
     systemctl restart cloudreve
+    
+    # 获取本机IP地址
+    HOST_IP=$(curl -s http://checkip.amazonaws.com)
 
     echo "Cloudreve 安装并启动"
-    echo "Cloudreve 管理员信息"
+    echo "http://${HOST_IP}:5212"
     cat "$LOG_FILE"
     press_enter
 }
