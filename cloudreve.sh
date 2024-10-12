@@ -321,7 +321,7 @@ show_menu() {
     echo "4. 查看 Cloudreve 状态"
     echo "5. 查看 Cloudreve 密码"
     echo "0. 退出"
-    echo "${GREEN}==========================${RESET}"
+    echo -e "${GREEN}==========================${RESET}"
 }
 
 # 主循环
