@@ -73,7 +73,6 @@ install_dependencies() {
 
         echo "依赖工具安装完成"
     else
-    fi
 }
 
 # 检测系统架构并设置 ARCH 变量
