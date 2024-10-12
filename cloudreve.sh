@@ -90,7 +90,6 @@ detect_architecture() {
             exit 1
             ;;
     esac
-    echo "检测到系统架构：$ARCH"
 }
 
 # 获取 Cloudreve 最新版本号
@@ -209,7 +208,7 @@ EOF
     # 获取本机IP地址
     HOST_IP=$(curl -s http://checkip.amazonaws.com)
 
-    echo "Cloudreve 安装并启动完成。访问：http://${HOST_IP}:5212"
+    echo "Cloudreve 安装并启动完成：http://${HOST_IP}:5212"
     cat "$LOG_FILE"
     press_enter
 }
