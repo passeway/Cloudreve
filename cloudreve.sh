@@ -171,6 +171,7 @@ install_cloudreve() {
     chmod +x cloudreve
 
     # 运行 Cloudreve 以生成初始配置
+    echo "运行 Cloudreve 以生成初始配置..."
     nohup ./cloudreve > "$LOG_FILE" 2>&1 &
     sleep 5
 
@@ -179,6 +180,19 @@ install_cloudreve() {
         echo "Cloudreve 启动失败，请检查日志文件。"
         press_enter
         return
+    fi
+
+    
+    # 停止 Cloudreve 进程
+    pkill -f cloudreve
+    sleep 2
+
+    if pgrep -f cloudreve > /dev/null; then
+        echo "无法停止 Cloudreve 进程，请手动停止后重试。"
+        press_enter
+        return
+    else
+        echo "创建 systemd 服务"
     fi
 
     # 创建 systemd 服务文件
