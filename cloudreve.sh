@@ -24,7 +24,6 @@ install_dependencies() {
 
     if [ ${#MISSING_DEPS[@]} -ne 0 ]; then
         echo "检测到缺少以下依赖工具： ${MISSING_DEPS[@]}"
-        echo "正在尝试自动安装缺失的工具..."
 
         # 检测包管理器
         if command -v apt &> /dev/null; then
@@ -51,32 +50,29 @@ install_dependencies() {
         echo "使用包管理器：$PKG_MANAGER"
 
         # 更新包列表
-        echo "更新包列表..."
         if ! $UPDATE_CMD; then
             echo "无法更新包列表，请检查网络连接或包管理器配置"
             exit 1
         fi
 
         # 安装缺失的依赖
-        echo "安装缺失的工具..."
         for pkg in "${MISSING_DEPS[@]}"; do
             # 有些工具在包管理器中的名称可能不同
             case "$pkg" in
                 systemctl|uname)
-                    echo "$pkg 是系统自带工具，无法通过包管理器安装。请手动安装并重试。"
+                    echo "$pkg 是系统自带工具，无法通过包管理器安装。请手动安装并重试"
                     ;;
                 *)
                     if ! $INSTALL_CMD "$pkg"; then
-                        echo "无法安装 $pkg，请手动安装并重试。"
+                        echo "无法安装 $pkg，请手动安装并重试"
                         exit 1
                     fi
                     ;;
             esac
         done
 
-        echo "依赖工具安装完成。"
+        echo "依赖工具安装完成"
     else
-        echo "所有必要的依赖工具均已安装。"
     fi
 }
 
@@ -91,7 +87,7 @@ detect_architecture() {
             ARCH="arm64"
             ;;
         *)
-            echo "当前系统架构 ($MACHINE_ARCH) 不受支持。"
+            echo "当前系统架构 ($MACHINE_ARCH) 不受支持"
             exit 1
             ;;
     esac
@@ -287,9 +283,9 @@ view_password() {
 
     if [ -f "$LOG_FILE" ]; then
         echo "Cloudreve 管理员信息："
-        grep -i 'admin' "$LOG_FILE" || echo "未找到管理员信息。"
+        grep -i 'admin' "$LOG_FILE" || echo "未找到管理员信息"
     else
-        echo "日志文件不存在，无法查看密码。"
+        echo "日志文件不存在，无法查看密码"
     fi
     press_enter
 }
@@ -336,7 +332,7 @@ main() {
                 exit 0
                 ;;
             *)
-                echo "无效选项，请输入 0-5 之间的数字。"
+                echo "无效选项，请输入 0-5 之间的数字"
                 press_enter
                 ;;
         esac
