@@ -28,7 +28,6 @@ install_dependencies() {
     done
 
     if [ ${#MISSING_DEPS[@]} -ne 0 ]; then
-        echo "缺少依赖工具： ${MISSING_DEPS[@]}"
 
         # 检测包管理器
         if command -v apt &> /dev/null; then
@@ -52,7 +51,6 @@ install_dependencies() {
             exit 1
         fi
 
-        echo "使用包管理器：$PKG_MANAGER"
 
         # 更新包列表
         if ! $UPDATE_CMD; then
