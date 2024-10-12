@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# 定义颜色变量
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+RESET='\033[0m'
+
 # 定义 Cloudreve 安装目录
 INSTALL_DIR="/opt/Cloudreve"
 SERVICE_FILE="/etc/systemd/system/cloudreve.service"
@@ -291,9 +296,25 @@ view_password() {
 # 显示菜单
 show_menu() {
     clear
-    echo "============================="
-    echo "     Cloudreve 管理脚本      "
-    echo "============================="
+
+    # 检测 Cloudreve 是否已安装
+    if [ -d "$INSTALL_DIR" ]; then
+        cloudreve_status=0
+    else
+        cloudreve_status=1
+    fi
+
+    # 检测 Cloudreve 服务是否正在运行
+    if systemctl is-active --quiet cloudreve; then
+        cloudreve_running=0
+    else
+        cloudreve_running=1
+    fi
+
+    echo -e "${GREEN}=== Cloudreve 管理脚本 ===${RESET}"
+    echo -e "${GREEN}当前状态: $(if [ ${cloudreve_status} -eq 0 ]; then echo "${GREEN}已安装${RESET}"; else echo "${RED}未安装${RESET}"; fi)${RESET}"
+    echo -e "${GREEN}运行状态: $(if [ ${cloudreve_running} -eq 0 ]; then echo "${GREEN}已运行${RESET}"; else echo "${RED}未运行${RESET}"; fi)${RESET}"
+    echo ""
     echo "1. 安装 Cloudreve 服务"
     echo "2. 卸载 Cloudreve 服务"
     echo "3. 重启 Cloudreve 服务"
