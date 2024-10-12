@@ -171,9 +171,8 @@ install_cloudreve() {
     chmod +x cloudreve
 
     # 运行 Cloudreve 以生成初始配置
-    echo "运行 Cloudreve 以生成初始配置..."
     nohup ./cloudreve > "$LOG_FILE" 2>&1 &
-    sleep 5
+    sleep 2
 
     # 检查 Cloudreve 是否已启动
     if ! pgrep -f cloudreve > /dev/null; then
