@@ -28,7 +28,7 @@ install_dependencies() {
     done
 
     if [ ${#MISSING_DEPS[@]} -ne 0 ]; then
-        echo "检测到缺少以下依赖工具： ${MISSING_DEPS[@]}"
+        echo "缺少依赖工具： ${MISSING_DEPS[@]}"
 
         # 检测包管理器
         if command -v apt &> /dev/null; then
@@ -129,6 +129,10 @@ install_cloudreve() {
     else
         echo "Cloudreve 目录已存在：$INSTALL_DIR"
     fi
+
+
+    # 创建 temp
+    mkdir -p $INSTALL_DIR/temp
 
     # 安装依赖
     install_dependencies
