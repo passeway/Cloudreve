@@ -4,7 +4,7 @@
 
 ## 一键脚本
 ```
-bash <(curl -fsSL cloudreve-one.vercel.app)
+bash <(curl -fsSL cloudreve-blond.vercel.app)
 ```
 ## 详细说明
 - Cloudreve 默认会监听5212端口，你可以在浏览器中访问http://服务器IP:5212进入 Cloudreve。
