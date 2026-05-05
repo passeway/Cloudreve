@@ -106,6 +106,7 @@ show_menu() {
     echo "3) 停止 Cloudreve 服务"
     echo "4) 重启 Cloudreve 服务"
     echo "5) 查看 Cloudreve 状态"
+    echo "6) 查看 Cloudreve 密码"
     echo "7) 卸载 Cloudreve 服务"
     echo "0) 退出"
     echo -n -e "${YELLOW}请输入选项编号：${RESET} "
@@ -160,6 +161,7 @@ main() {
             3) manage_service stop ;;
             4) manage_service restart ;;
             5) manage_service status ;;
+            6) cat /opt/Cloudreve/cloudreve.log ;;
             7) uninstall_cloudreve ;;
             0) exit 0 ;;
             *) echo -e "${RED}无效选项${RESET}"; sleep 1 ;;
